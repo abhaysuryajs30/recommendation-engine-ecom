@@ -1,0 +1,13 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+
+# Node
+frontend/node_modules/
+frontend/build/
+
+# Data (too large for GitHub)
+backend/data/
