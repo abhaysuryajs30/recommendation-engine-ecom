@@ -55,7 +55,11 @@ app = FastAPI(
 # ── CORS — allows React frontend to call this API ─────────────────────
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React dev server
+    allow_origins=[
+        "http://localhost:3000",
+        "https://recommendation-engine-ecom-hbsoyvcj7-abhaysuryajs30s-projects.vercel.app",
+        "https://*.vercel.app",
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
