@@ -10,28 +10,40 @@ class CollaborativeFilter:
         self.user_similarity = None
 
     def load_data(self):
-        # Load CSVs — ratings + movie titles
         self.ratings = pd.read_csv('data/ratings.csv')
         self.movies  = pd.read_csv('data/movies.csv')
         print(f"✅ Loaded {len(self.ratings)} ratings")
 
     def build_matrix(self):
-        # Step 1: Pivot into user-item matrix
-        # Rows = users, Columns = movies, Values = ratings
-        # Empty cells (not watched) = 0
-        self.user_item_matrix = self.ratings.pivot_table(
+        # Keep only top 200 most active users and top 500 most rated movies
+        # Reduces memory from ~500MB to ~50MB — fits Render free tier
+        top_users = (
+            self.ratings.groupby('userId')['movieId']
+            .count()
+            .nlargest(200)
+            .index
+        )
+        top_movies = (
+            self.ratings.groupby('movieId')['userId']
+            .count()
+            .nlargest(500)
+            .index
+        )
+
+        filtered = self.ratings[
+            self.ratings['userId'].isin(top_users) &
+            self.ratings['movieId'].isin(top_movies)
+        ]
+
+        self.user_item_matrix = filtered.pivot_table(
             index='userId',
             columns='movieId',
             values='rating'
         ).fillna(0)
 
         print(f"✅ Matrix shape: {self.user_item_matrix.shape}")
-        # Expected: (610, 9724) — 610 users, 9724 movies
 
     def compute_similarity(self):
-        # Step 2: Compute cosine similarity between every pair of users
-        # Result is a 610x610 matrix
-        # similarity[i][j] = how similar user i is to user j (0 to 1)
         self.user_similarity = cosine_similarity(self.user_item_matrix)
         self.user_similarity = pd.DataFrame(
             self.user_similarity,
@@ -39,19 +51,19 @@ class CollaborativeFilter:
             columns=self.user_item_matrix.index
         )
         print(f"✅ Similarity matrix shape: {self.user_similarity.shape}")
-        # Expected: (610, 610)
 
     def recommend(self, user_id, top_n=10):
-        # Step 3: For a given user, find their top 5 most similar users
+        # If user not in reduced matrix, return empty
+        if user_id not in self.user_similarity.index:
+            return []
+
         similar_users = (
             self.user_similarity[user_id]
             .sort_values(ascending=False)
-            .iloc[1:6]          # Skip index 0 — that's the user themselves
+            .iloc[1:6]
             .index.tolist()
         )
 
-        # Step 4: Get movies those similar users rated highly (4.0+)
-        # that our target user hasn't seen yet
         user_seen = set(
             self.ratings[self.ratings['userId'] == user_id]['movieId']
         )
@@ -59,7 +71,6 @@ class CollaborativeFilter:
         recommendations = {}
         for sim_user in similar_users:
             sim_score = self.user_similarity[user_id][sim_user]
-            # Get highly rated movies by this similar user
             sim_user_ratings = self.ratings[
                 (self.ratings['userId'] == sim_user) &
                 (self.ratings['rating'] >= 4.0)
@@ -67,23 +78,20 @@ class CollaborativeFilter:
             for _, row in sim_user_ratings.iterrows():
                 movie_id = row['movieId']
                 if movie_id not in user_seen:
-                    # Weight the rating by how similar this user is
                     weighted = row['rating'] * sim_score
                     if movie_id in recommendations:
                         recommendations[movie_id] += weighted
                     else:
                         recommendations[movie_id] = weighted
 
-        # Step 5: Sort by score, get top N, attach movie titles
-        top_movies = sorted(
+        top_movie_list = sorted(
             recommendations.items(),
             key=lambda x: x[1],
             reverse=True
         )[:top_n]
 
-        # Convert movieIds to titles
         results = []
-        for movie_id, score in top_movies:
+        for movie_id, score in top_movie_list:
             title = self.movies[
                 self.movies['movieId'] == movie_id
             ]['title'].values
