@@ -1,0 +1,111 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.app { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* Header */
+.header {
+  background: white;
+  border-bottom: 1px solid #e5e5e5;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.logo { font-size: 18px; font-weight: 600; }
+.tagline { font-size: 12px; color: #888; background: #f0f0f0; padding: 3px 8px; border-radius: 20px; }
+.header-right { display: flex; align-items: center; gap: 8px; }
+.user-label { font-size: 13px; color: #666; }
+.user-select {
+  font-size: 13px; padding: 6px 10px; border-radius: 8px;
+  border: 1px solid #ddd; background: white; cursor: pointer;
+}
+
+/* Main */
+.main { flex: 1; max-width: 1100px; margin: 0 auto; padding: 24px 20px; width: 100%; }
+
+/* Sections */
+.section { margin-bottom: 32px; }
+.section-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+.section-title-row { display: flex; align-items: center; gap: 8px; }
+.section-title { font-size: 16px; font-weight: 600; }
+.badge { font-size: 11px; background: #e8f0fe; color: #1a56db; padding: 3px 8px; border-radius: 20px; }
+.cache-row { display: flex; align-items: center; gap: 10px; }
+.cache-status { font-size: 12px; color: #666; }
+.clear-btn {
+  font-size: 12px; padding: 4px 10px; border-radius: 6px;
+  border: 1px solid #ddd; background: white; cursor: pointer;
+  color: #555;
+}
+.clear-btn:hover { background: #f5f5f5; }
+
+/* Movie Grid */
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.movie-card {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #eee;
+  overflow: hidden;
+  transition: transform 0.15s;
+}
+.movie-card:hover { transform: translateY(-2px); }
+
+.movie-poster {
+  height: 90px;
+  background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+  display: flex; align-items: center; justify-content: center;
+}
+.movie-icon { font-size: 32px; }
+.movie-info { padding: 10px; }
+.movie-title { font-size: 12px; font-weight: 500; line-height: 1.4; margin-bottom: 6px; color: #1a1a1a; }
+.movie-rating { font-size: 11px; color: #888; margin-top: 4px; }
+.movie-genre { font-size: 10px; color: #aaa; margin-top: 3px; }
+
+/* Score bar */
+.score-row { display: flex; align-items: center; gap: 6px; }
+.score-bar { flex: 1; height: 4px; background: #eee; border-radius: 2px; overflow: hidden; }
+.score-bar.wide { flex: 1; height: 8px; }
+.score-fill { height: 100%; background: #1a56db; border-radius: 2px; }
+.score-fill.collab { background: #1a56db; }
+.score-fill.content { background: #0e9f6e; }
+.score-fill.hybrid { background: #7e3af2; }
+.score-label { font-size: 11px; color: #1a56db; font-weight: 500; min-width: 28px; }
+.score-num { font-size: 12px; font-weight: 500; min-width: 36px; text-align: right; }
+
+/* Breakdown */
+.breakdown-section { background: white; border-radius: 12px; border: 1px solid #eee; padding: 16px 20px; }
+.breakdown-card { margin-top: 10px; }
+.breakdown-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: #333; }
+.breakdown-rows { display: flex; flex-direction: column; gap: 10px; }
+.breakdown-row { display: flex; align-items: center; gap: 10px; }
+.breakdown-label { font-size: 12px; color: #555; min-width: 200px; }
+
+/* Genre filters */
+.genre-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.genre-btn {
+  font-size: 12px; padding: 4px 12px; border-radius: 20px;
+  border: 1px solid #ddd; background: white; cursor: pointer; color: #555;
+  transition: all 0.1s;
+}
+.genre-btn.active { background: #e8f0fe; color: #1a56db; border-color: #1a56db; }
+.genre-btn:hover:not(.active) { background: #f5f5f5; }
+
+/* Loading */
+.loading { padding: 40px; text-align: center; color: #888; font-size: 14px; }
+
+/* Footer */
+.footer { text-align: center; padding: 16px; font-size: 11px; color: #aaa; border-top: 1px solid #eee; background: white; margin-top: auto; }
