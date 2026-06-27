@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 
-const API = process.env.REACT_APP_API_URL || "http://localhost:8000";
+const API = "https://recommendation-engine-ecom.onrender.com";
 
 function MovieCard({ movie, score }) {
   return (
