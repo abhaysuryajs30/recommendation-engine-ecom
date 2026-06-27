@@ -13,20 +13,35 @@ movies_df   = None
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Runs once when server starts — load heavy models here."""
     global recommender, ratings_df, movies_df
+
+    # Auto-download dataset if not present (for Railway deployment)
+    import os, zipfile, urllib.request
+    data_dir = "data"
+    os.makedirs(data_dir, exist_ok=True)
+
+    if not os.path.exists(f"{data_dir}/ratings.csv"):
+        print("📥 Downloading MovieLens dataset...")
+        url = "https://files.grouplens.org/datasets/movielens/ml-latest-small.zip"
+        urllib.request.urlretrieve(url, "ml-latest-small.zip")
+        with zipfile.ZipFile("ml-latest-small.zip", "r") as z:
+            for name in z.namelist():
+                if name.endswith(".csv"):
+                    filename = name.split("/")[-1]
+                    with z.open(name) as src, open(f"{data_dir}/{filename}", "wb") as dst:
+                        dst.write(src.read())
+        os.remove("ml-latest-small.zip")
+        print("✅ Dataset ready!")
 
     print("🚀 Server starting — loading recommendation engine...")
     recommender = HybridRecommender(collab_weight=0.6, content_weight=0.4)
     recommender.load_and_build()
 
-    # Also keep dataframes handy for the /movies endpoint
     ratings_df = pd.read_csv('data/ratings.csv')
     movies_df  = pd.read_csv('data/movies.csv')
 
     print("✅ Server ready!\n")
     yield
-    # Anything after yield runs on shutdown (cleanup)
     print("Server shutting down...")
 
 # ── Create FastAPI app ────────────────────────────────────────────────
